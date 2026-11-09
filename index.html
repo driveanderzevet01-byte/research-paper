@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Writing a Research Paper</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one centered "slide" card per step, with a numbered step rail above it; quizzes gate the Next button like the MDA & CDA lecture. */
+:root{
+  --bg:#eef1f4; --card:#ffffff; --ink:#151a22; --muted:#4f5867; --line:#d6dbe3; --soft:#f4f6f9;
+  --accent:#2445c4; --accent-ink:#ffffff; --mark:#ffd84a; --mark-ink:#151a22;
+  --good:#1b7a45; --good-bg:#e3f4ea; --bad:#b4261c; --bad-bg:#fbe7e5;
+  --c1:#2445c4; --c2:#d9822b; --c3:#1b8a7a;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#11141a; --card:#1a1f28; --ink:#e8ecf2; --muted:#a6afbd; --line:#2f3644; --soft:#222834;
+  --accent:#93a8ff; --accent-ink:#0e1220; --mark:#ffd84a; --mark-ink:#151a22;
+  --good:#7fd6a2; --good-bg:#16301f; --bad:#ff9a8f; --bad-bg:#3a1b18;
+  --c1:#93a8ff; --c2:#f0a35a; --c3:#5cc9b6; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#11141a; --card:#1a1f28; --ink:#e8ecf2; --muted:#a6afbd; --line:#2f3644; --soft:#222834;
+  --accent:#93a8ff; --accent-ink:#0e1220; --mark:#ffd84a; --mark-ink:#151a22;
+  --good:#7fd6a2; --good-bg:#16301f; --bad:#ff9a8f; --bad-bg:#3a1b18;
+  --c1:#93a8ff; --c2:#f0a35a; --c3:#5cc9b6; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.6;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:20px 48px}
+#app{max-width:880px;margin:0 auto}
+.rail{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;align-items:center}
+.rail button{font:600 12px/1 var(--body);letter-spacing:.04em;border:1px solid var(--line);background:var(--card);color:var(--muted);
+  border-radius:999px;padding:6px 10px;cursor:pointer}
+.rail button[aria-current="step"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+.rail button:disabled{opacity:.45;cursor:not-allowed}
+.rail .count{margin-left:auto;font:500 12px var(--mono);color:var(--muted)}
+.slide{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:clamp(20px,4vw,40px);min-height:480px;display:flex;flex-direction:column;gap:14px}
+.slide>*{min-width:0}
+.eyebrow{font:600 12px var(--body);text-transform:uppercase;letter-spacing:.12em;color:var(--accent)}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.15;margin:0}
+h1{font-size:clamp(2rem,5vw,3.1rem);font-weight:800;letter-spacing:-.01em}
+h2{font-size:clamp(1.5rem,3.4vw,2rem);font-weight:800}
+h3{font-size:1.12rem;font-weight:600;margin-top:6px}
+p{margin:0;max-width:68ch}
+ul,ol{margin:0;padding-left:1.3em;max-width:68ch}
+li{margin:.25em 0}
+mark{background:var(--mark);color:var(--mark-ink);padding:0 .2em;border-radius:3px}
+.lede{font-size:1.12rem;color:var(--muted)}
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tags span{border:1.5px solid var(--ink);border-radius:999px;padding:5px 12px;font-weight:600;font-size:.9rem}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:14px}
+.box{background:var(--soft);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.box h4{margin:0;font:600 12px var(--body);text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.term{font-weight:700}
+.source{font-size:.85rem;color:var(--muted)}
+.btn{font:600 15px var(--body);border:1.5px solid var(--ink);background:var(--card);color:var(--ink);border-radius:999px;padding:9px 18px;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn:focus-visible,.rail button:focus-visible,input:focus-visible,label.opt:focus-within{outline:3px solid var(--mark);outline-offset:2px}
+.toggle{display:inline-flex;border:1.5px solid var(--ink);border-radius:999px;overflow:hidden;width:max-content;max-width:100%}
+.toggle button{font:600 14px var(--body);border:0;background:transparent;color:var(--ink);padding:7px 14px;cursor:pointer}
+.toggle button[aria-pressed="true"]{background:var(--ink);color:var(--card)}
+.nav{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;padding-top:16px;border-top:1px solid var(--line);flex-wrap:wrap}
+/* demo: poster */
+.poster{background:#fbfaf7;color:#1b1f27;border-radius:10px;border:1px solid var(--line);padding:18px;display:flex;flex-direction:column;gap:6px;max-width:360px;width:100%;aspect-ratio:4/5;font-family:var(--body)}
+.poster .p-title,.poster .p-sub,.poster .p-info,.poster .p-cta,.poster .p-logo{transition:all .25s}
+.weak .p-title,.weak .p-sub,.weak .p-info,.weak .p-cta,.weak .p-logo{font-size:15px;font-weight:400;color:#1b1f27;background:none;padding:0;text-align:center}
+.weak .p-logo{font-size:16px;font-weight:700}
+.strong .p-logo{order:9;font-size:11px;color:#596273;text-align:left}
+.strong .p-title{font:800 34px/1.05 var(--display);color:#1b1f27}
+.strong .p-sub{font-size:15px;color:#3e4655}
+.strong .p-info{margin-top:auto;border-top:2px solid #1b1f27;padding-top:8px;font-size:14px;font-weight:600}
+.strong .p-cta{background:#2445c4;color:#fff;border-radius:999px;padding:8px 14px;font-weight:700;font-size:14px;width:max-content}
+/* demo: gestalt */
+.dots{display:grid;grid-template-columns:repeat(6,22px);gap:14px;width:max-content;transition:all .3s}
+.dots.grouped{grid-template-columns:repeat(2,22px) 22px repeat(2,22px) 22px;column-gap:6px}
+.dots i{display:block;width:22px;height:22px;border-radius:50%;background:var(--ink)}
+.dots.grouped i:nth-child(3n){visibility:hidden}
+.dots.similar i:nth-child(3n+1){background:var(--c2);border-radius:4px}
+/* demo: type */
+.typedemo{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--soft)}
+.typedemo.bad p{text-transform:uppercase;text-align:center;letter-spacing:.14em;line-height:1.15;font-size:15px;max-width:none}
+.typedemo.good p{line-height:1.6;max-width:60ch}
+/* demo: contrast */
+.contrast{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px;align-items:start}
+.swatch{border-radius:10px;padding:16px;border:1px solid var(--line);min-height:120px;display:flex;flex-direction:column;gap:4px;justify-content:center}
+.swatch .big{font:800 24px var(--display)}
+.ratio{font:600 2rem var(--mono)}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-weight:700;font-size:.85rem;margin:2px 4px 2px 0}
+.pill.ok{background:var(--good-bg);color:var(--good)}
+.pill.no{background:var(--bad-bg);color:var(--bad)}
+.colors{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.colors label{display:flex;gap:6px;align-items:center;font-weight:600}
+.colors input[type=color]{width:44px;height:34px;border:1px solid var(--line);border-radius:6px;background:var(--card);padding:2px}
+/* demo: K&vL zones */
+.zones{display:grid;grid-template-columns:1fr 1.2fr 1fr;grid-template-rows:auto auto;border:1.5px solid var(--ink);border-radius:10px;overflow:hidden;font-size:.92rem}
+.zones div{padding:10px 12px;border:1px dashed var(--line)}
+.zones .c{grid-column:2;grid-row:1 / span 2;background:var(--soft);display:flex;flex-direction:column;justify-content:center;text-align:center}
+.zones b{display:block;font-family:var(--display)}
+/* demo: chart */
+.chart{display:flex;align-items:flex-end;gap:16px;height:170px;padding:10px 6px 0;border-bottom:2px solid var(--ink)}
+.chart .bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:4px;height:100%}
+.chart .bar i{display:block;width:100%;max-width:70px;border-radius:6px 6px 0 0}
+.chart .lab{font-size:.82rem;font-weight:600;text-align:center}
+.gray .chart{filter:grayscale(1)}
+.colorOnly .lab,.colorOnly .val{visibility:hidden}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.85rem}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+/* quiz */
+.quiz{display:flex;flex-direction:column;gap:18px}
+.q{display:flex;flex-direction:column;gap:8px;padding-bottom:14px;border-bottom:1px dashed var(--line)}
+.q:last-child{border-bottom:0}
+.qt{font-weight:600}
+.opts{display:flex;flex-direction:column;gap:6px}
+label.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer;background:var(--card)}
+label.opt input{margin-top:5px;accent-color:var(--accent)}
+.blank{font:inherit;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);width:100%;max-width:420px}
+.fb{font-weight:600;font-size:.95rem}
+.fb.ok{color:var(--good)} .fb.no{color:var(--bad)}
+.notice{font-weight:600;color:var(--bad)}
+.score{font:700 1.1rem var(--display)}
+/* checklist */
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:14px}
+.checks .box label{display:flex;gap:8px;align-items:flex-start;font-size:.95rem;cursor:pointer}
+.checks input{margin-top:5px;accent-color:var(--accent)}
+.progress{height:8px;background:var(--soft);border-radius:999px;overflow:hidden;border:1px solid var(--line)}
+.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .2s}
+.refs li{font-size:.92rem}
+.ix{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}
+.ixcard{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--card);display:flex;flex-direction:column;gap:10px;min-height:150px}
+.ixcard .tag{font:600 11px var(--body);text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.plain{background:none;border:0;padding:0;font:inherit;color:var(--muted);font-size:.85rem;cursor:default;text-align:left}
+.ixmsg{font-weight:600;color:var(--good)}
+.ixmsg.err{color:var(--bad)}
+.tiny{font-size:10px;padding:1px 4px;border:1px solid var(--line);border-radius:3px;background:var(--soft);color:var(--ink);cursor:pointer}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+@media (max-width:520px){body{font-size:16px}.slide{min-height:0}}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table.tbl{border-collapse:collapse;width:100%;font-size:.92rem;min-width:520px}
+table.tbl th,table.tbl td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+table.tbl th{background:var(--soft);font-weight:600}
+table.tbl tr:last-child td{border-bottom:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{font:600 13px var(--body);border:1.5px solid var(--ink);background:var(--card);color:var(--ink);border-radius:999px;padding:5px 12px;cursor:pointer}
+.chips button[aria-pressed="true"]{background:var(--mark);color:var(--mark-ink);border-color:var(--mark)}
+.abs{background:var(--soft);border-radius:10px;padding:14px 16px;line-height:1.75}
+.abs span{transition:background .2s;border-radius:3px}
+.abs span.on{background:var(--mark);color:var(--mark-ink)}
+.abs .kw{display:block;margin-top:8px;font-size:.92rem}
+.ref{overflow-wrap:anywhere;padding-left:2em;text-indent:-2em;margin:0;max-width:none}
+.reflist{display:flex;flex-direction:column;gap:12px}
+.reftype{font:600 12px var(--body);text-transform:uppercase;letter-spacing:.1em;color:var(--accent)}
+.anno{font-size:.88rem;color:var(--muted)}
+.slider{display:flex;flex-direction:column;gap:8px}
+.slider input[type=range]{width:100%;max-width:420px;accent-color:var(--accent)}
+.rval{font:600 1.6rem var(--mono)}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-weight:600;font-size:.92rem}
+.flow span{border:1.5px solid var(--ink);border-radius:8px;padding:6px 10px;background:var(--card)}
+.flow b{color:var(--muted);font-weight:400}
+.qflow{display:flex;flex-direction:column;gap:14px}
+.qstep{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;position:relative}
+.qstep+.qstep::before{content:"↓";position:absolute;top:-17px;left:28px;color:var(--muted);font-weight:700;background:var(--card);padding:0 4px;line-height:1}
+.qtext h3{margin:4px 0 6px;font-size:1.05rem}
+.qtext p{margin:0}
+.qnum{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:.9rem}
+.ill{background:var(--soft);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px;font-size:.88rem;align-items:stretch}
+.tx{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:4px}
+.txl{display:flex;gap:8px;line-height:1.5}
+.txl .ln{font:500 11px var(--mono);color:var(--muted);min-width:14px;padding-top:3px}
+.audio{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font:500 12px var(--mono);align-self:flex-start}
+.arrowdown{color:var(--muted);font-weight:700;text-align:center;line-height:1}
+.memo{background:var(--mark);color:var(--mark-ink);border-radius:4px;padding:8px 10px;transform:rotate(-1deg);box-shadow:0 2px 6px rgba(0,0,0,.12);font-size:.85rem}
+mark.h1,.code.h1{background:var(--mark);color:var(--mark-ink)}
+mark.h2,.code.h2{background:var(--good-bg);color:var(--ink)}
+mark.h3,.code.h3{background:var(--bad-bg);color:var(--ink)}
+mark{border-radius:3px;padding:0 2px}
+.codes{display:flex;flex-wrap:wrap;gap:6px}
+.code{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:.8rem;font-weight:600}
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cat{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start}
+.cat h5{width:100%;margin:0 0 2px;font-size:.85rem}
+.theme{background:var(--accent);color:var(--accent-ink);border-radius:8px;padding:10px;text-align:center;font-weight:700}
+.checkrow{display:flex;flex-wrap:wrap;justify-content:center}
+.report{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:10px 12px;line-height:1.55}
+@media (max-width:700px){.qstep{grid-template-columns:1fr}.cats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <nav class="rail" id="rail" aria-label="Lecture steps"></nav>
+  <main class="slide" id="slide" tabindex="-1" aria-live="polite"></main>
+</div>
+
+<script>
+(function(){
+"use strict";
+var esc=function(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});};
+
+/* ---------- Quiz bank (multiple choice only; options are shuffled on load) ---------- */
+var QUIZ={
+ abs:[
+  {q:"How long is an abstract usually?",o:["200–250 words","About 500–600 words to cover every section in detail","One full page, double-spaced","Exactly 100 words for every journal"],a:0},
+  {q:"Which part of the abstract tells readers what earlier studies have not answered?",o:["The keywords listed under the abstract","The gap","The implications and recommendations","The full list of participants and instruments"],a:1},
+  {q:"“A close-ended survey questionnaire was administered to 204 vocational high school students.” This sentence is the abstract’s…",o:["background on why the topic matters","implication for teachers and schools","methodology","research gap in earlier studies"],a:2},
+  {q:"How many keywords are usually listed under an abstract?",o:["One single main keyword only","Ten or more, to help search engines","3–5","As many as the paper has headings"],a:2},
+  {q:"Which order matches the abstract structure taught here?",o:["Findings → method → background → keywords → gap → objective → implications","Background → gap → objective → method → findings → implications","Method → findings → background → keywords → gap → implications → objective","Implications → objective → keywords → background → method → findings → gap"],a:1}
+ ],
+ intro:[
+  {q:"What is the usual direction of an introduction?",o:["From one narrow detail outward to the whole world of the topic","General topic → specific problem → gap → research question","From the findings and statistics back to the general background","Any random order, as long as every required part is there somewhere"],a:1},
+  {q:"Which is the best research question for a final project about an interactive grammar website?",o:["Grammar websites and their many different uses in the modern world","How do first-year EL students perceive the usefulness of the interactive grammar website?","Is the website good or not, in the opinion of everyone at the university and in the rest of the country?","Why is grammar important for all people around the world, in every language and every culture?"],a:1},
+  {q:"The “significance” part of the introduction explains…",o:["the exact statistics you will use in the analysis","why the research is worth doing and who benefits","the list of every reference in alphabetical order","the full demographic table of all participants"],a:1},
+  {q:"Where does the research gap usually appear when the introduction and literature review are combined?",o:["Only in the abstract, and never anywhere in the body of the paper","In the conclusion section, right after the list of limitations","Near the end of the combined section, before the RQs","In the very first sentence of the paper, before any background"],a:2},
+  {q:"A research problem is…",o:["the specific issue the study addresses","the software used for data analysis","a list of the keywords of the study","the page limit set by the journal for each article"],a:0}
+ ],
+ lit:[
+  {q:"What does the “key concepts” part of a literature review do?",o:["It reports your own findings with tables and statistics","It defines the main terms, basically your keywords","It lists all participants and their demographic details","It gives recommendations for future research directions"],a:1},
+  {q:"What is the difference between summarizing and synthesizing previous studies?",o:["Synthesis connects and compares studies; a summary describes them one by one","There is no difference at all; both words mean exactly the same thing in academic writing","A summary is always longer and much more detailed than any synthesis could ever be","Synthesis means copying the original abstract of each study word for word into your paper"],a:0},
+  {q:"For a final project that analyzes students’ Instagram campaign, which theory best fits the theoretical framework?",o:["Newton’s laws of motion and their applications","Kress & van Leeuwen’s visual grammar (MDA)","The theory of supply and demand in economics","Darwin’s theory of evolution by natural selection"],a:1},
+  {q:"Which sentence shows synthesis?",o:["Smith (2020) studied posters for a long time. Lee (2021) studied videos. Park (2022) studied websites. Kim (2023) studied apps.","Both Smith (2020) and Lee (2021) found that clear hierarchy improves recall, but neither tested interactive media.","Smith (2020) is a very good and very interesting study that every student in our department should definitely read soon.","This paper is about multimodality, which is a very important and very popular topic in many universities around the world today."],a:1},
+  {q:"The literature review ends by…",o:["highlighting what remains unexplored: the gap","listing the questionnaire items one by one","presenting the final score of each participant","thanking the people who helped with the study"],a:0}
+ ],
+ design:[
+  {q:"Your group analyzes how 10 department Instagram posts combine text, image and color. Which design is this?",o:["Quantitative correlational design","Qualitative (multimodal discourse analysis)","True experimental design with control groups","Longitudinal cohort study over several years"],a:1},
+  {q:"Your group gives a 5-point Likert questionnaire to 60 students about your media. Which design is this?",o:["Quantitative survey","Qualitative case study with interviews","Critical discourse analysis of texts","Ethnography with long-term observation"],a:0},
+  {q:"You first analyze your media with MDA, then survey users about it. This is…",o:["purely quantitative research","a mixed-methods design","not research at all","an experimental design"],a:1},
+  {q:"Which design fits a project whose main goal is to build media and test it with users?",o:["R&D, e.g., the ADDIE model","Historical research on old archives","Pure CDA only, with no users involved","Content analysis of old newspapers"],a:0},
+  {q:"In an explanatory sequential mixed-methods design, which comes first?",o:["Qualitative interviews first, then a large survey to generalize them","Quantitative data first, then qualitative data to explain it","Both kinds of data are always collected at exactly the same time","Only the literature review, with no data collected at any point"],a:1}
+ ],
+ samp:[
+  {q:"You choose 8 posters because they clearly target new students. This is…",o:["simple random sampling","purposive sampling","stratified random sampling","cluster sampling"],a:1},
+  {q:"You survey whichever EL students are available in your class this week. This is…",o:["convenience sampling","snowball sampling","stratified random sampling","systematic sampling from a list"],a:0},
+  {q:"Which instrument records modes (visual, verbal, audio, gesture) frame by frame?",o:["A multimodal observation sheet","A consent form signed by every participant","An attendance list for the whole class","A reference manager such as Zotero or Mendeley"],a:0},
+  {q:"What does a Pearson correlation of r = .635 show (interpretation from Schober et al., 2018)?",o:["A weak relationship","A moderate positive relationship","Proof that one variable causes the other","No relationship at all"],a:1},
+  {q:"Which analysis groups interview answers into codes and then themes?",o:["Pearson correlation","Thematic analysis","Descriptive statistics (mean and SD)","Cronbach’s alpha reliability test"],a:1}
+ ],
+ find:[
+  {q:"The findings section should…",o:["report what the data show, objectively","explain at length why every single result happened","compare every result with ten or more other studies","only repeat the research questions without any data"],a:0},
+  {q:"How should findings usually be organized?",o:["By research question or by theme","By the date each participant answered","In alphabetical order of the participants’ names","By the length of each answer, longest first"],a:0},
+  {q:"Which is a correctly reported descriptive result in APA style?",o:["The score was very good.","M = 4.45, SD = 0.70","mean=4.4521323, sd=.7","Average 4 point something"],a:1},
+  {q:"For qualitative findings, good supporting evidence includes…",o:["short quotes or screenshots linked to each theme","your personal opinion about each of the participants","only the total number of words in all of the data","nothing at all, since qualitative findings need no evidence"],a:0},
+  {q:"When should you use a table or figure in the findings?",o:["To summarize key results clearly","Only to decorate the page and make it look nicer","Only in the abstract, never in the body","Never, because tables are not allowed in a research paper"],a:0}
+ ],
+ disc:[
+  {q:"What is the main job of the discussion?",o:["Interpret what the findings mean and why they matter","Repeat the findings word for word with the same tables","Introduce brand-new data that were not reported earlier","List all references again in alphabetical order"],a:0},
+  {q:"Your result differs from a previous study. What should you do?",o:["Hide the result","Address it and offer possible explanations","Delete the previous study from your references","Change your data to match"],a:1},
+  {q:"Which sentence belongs in the discussion, not the findings?",o:["Students rated usefulness at M = 4.21 (SD = 0.66), which was the highest of all five dimensions measured.","The high rating may reflect the familiar Instagram format, consistent with Lee (2021).","Table 2 shows the mean scores and standard deviations for each of the questionnaire items in the survey.","Sixty first-year students from two classes completed the online questionnaire in November 2026."],a:1},
+  {q:"A correlation of r = .635 (p < .05) means…",o:["variable A directly causes variable B in every single case","the two variables are related; causation isn’t proven","the result is not statistically significant at all","the questionnaire used in the study was not reliable"],a:1},
+  {q:"The discussion should connect findings to…",o:["the research questions and earlier studies","only the abstract and nothing else in the paper","the authors’ personal life and their own experiences","nothing at all outside the data that were collected"],a:0}
+ ],
+ concl:[
+  {q:"How is a conclusion usually organized?",o:["Summary of findings, then significance and recommendations","One long list of all the statistics that were already reported in the findings section","A word-for-word copy of the abstract, using exactly the same sentences","A completely new review of literature that was not discussed anywhere before"],a:0},
+  {q:"Which is a limitation?",o:["Data came from one class of 30 students only","The media looked very attractive and colorful to everyone who saw it","The research question was really interesting to all the group members","The authors worked very hard on the project for the whole semester"],a:0},
+  {q:"Implications explain…",o:["how findings apply in practice or theory","the page numbers of each source cited in the paper","how many words the whole paper contains in total","the exact time the online survey started and ended"],a:0},
+  {q:"A conclusion should NOT…",o:["introduce new findings","answer the research questions that were stated in the introduction","state the study’s contributions to the field and to the department","suggest directions and improvements for future research on the topic"],a:0},
+  {q:"Which is a good recommendation?",o:["Future studies could also test the website with lecturers.","Everything is already perfect, so no more research on this topic will ever be needed.","Readers should memorize every finding in this paper before they read any other study.","The paper should be read at least twice by every student in the whole department."],a:0}
+ ],
+ refs:[
+  {q:"In an APA 7 reference, how are author names written?",o:["Surname, initials: Andriani, E.","First name written in full: Erina Andriani","Initials only, with no surname: E. A.","Surname only, with no initials at all: Andriani"],a:0},
+  {q:"How is a journal article title written in APA 7?",o:["Sentence case, not italic","Title Case and in italics","ALL CAPITAL LETTERS","In quotation marks and bold"],a:0},
+  {q:"Which part of a journal reference is italicized?",o:["The article title, from its first word to its last","The journal name and volume","The names of all the authors in the reference","The DOI link at the very end of the reference"],a:1},
+  {q:"How do you cite a source with three or more authors in text?",o:["(Schober et al., 2018)","(Schober, Boer, & Schwarte, 2018) every time","(Schober and others 2018)","(P. Schober et al. 2018)"],a:0},
+  {q:"How is the reference list ordered?",o:["Alphabetically by first author","By publication year, with the newest sources first","In the order the sources first appear in the text","Alphabetically by the name of the journal or publisher"],a:0}
+ ]
+};
+
+/* ---------- Slides ---------- */
+var S=[];
+function box(t,b){return '<div class="box"><h4>'+t+'</h4>'+b+'</div>';}
+S.push({rail:"Start",html:function(){return '<div class="eyebrow">Multimodal Literacies</div>'+
+ '<h1>Writing a Research Paper</h1>'+
+ '<p class="lede">The eight basic components of a research paper, what goes in each one and in what order, and how to plan your method.</p>'+
+ '<div class="tags"><span>Abstract</span><span>Introduction</span><span>Literature review</span><span>Method</span><span>Findings</span><span>Discussion</span><span>Conclusion</span><span>References</span></div>'+
+ box('How to use this','<p>Each component has a short page that lists its parts in order, with examples. A quiz follows most components, and you must check your answers before you can go on.</p>');}});
+S.push({rail:"Overview",html:function(){return '<div class="eyebrow">The big picture</div><h2>Eight components, one thread</h2>'+
+ '<p>Every part answers the same research question from a different angle. If a sentence doesn’t help answer it, cut it.</p>'+
+ '<div class="tblwrap"><table class="tbl"><thead><tr><th>Component</th><th>Answers the question…</th></tr></thead><tbody>'+
+ '<tr><td>Abstract</td><td>What is the whole study, in 200–250 words?</td></tr>'+
+ '<tr><td>Introduction</td><td>Why this problem, and what exactly do we ask?</td></tr>'+
+ '<tr><td>Literature review</td><td>What do theories and earlier studies say, and what’s missing?</td></tr>'+
+ '<tr><td>Method</td><td>How did we collect and analyze the data?</td></tr>'+
+ '<tr><td>Findings</td><td>What did the data show?</td></tr>'+
+ '<tr><td>Discussion</td><td>What do the findings mean?</td></tr>'+
+ '<tr><td>Conclusion</td><td>So what, and what next?</td></tr>'+
+ '<tr><td>References</td><td>Whose work did we use?</td></tr></tbody></table></div>'+
+ '<p class="source">The introduction and literature review are often combined. Write the abstract last, even though it comes first.</p>';}});
+
+S.push({rail:"Abstract",html:function(){return '<div class="eyebrow">Component 1</div><h2>Abstract</h2>'+
+ '<p>Usually <b>200–250 words</b>, depending on the journal. It summarizes the whole study in this order:</p>'+
+ '<div class="tblwrap"><table class="tbl"><thead><tr><th>Part</th><th>What it contains</th></tr></thead><tbody>'+
+ '<tr><td><b>Background</b></td><td>Brief context and the research problem.</td></tr>'+
+ '<tr><td><b>Gap</b></td><td>Why your research is important and what question it answers that previous studies haven’t answered.</td></tr>'+
+ '<tr><td><b>Research objective</b></td><td>The purpose or research question.</td></tr>'+
+ '<tr><td><b>Methodology</b></td><td>Research design, participants or data sources, and data collection and analysis methods.</td></tr>'+
+ '<tr><td><b>Findings / results</b></td><td>The main findings of the study.</td></tr>'+
+ '<tr><td><b>Implications</b></td><td>How the findings can be applied in practice or contribute to future research.</td></tr>'+
+ '<tr><td><b>Keywords</b></td><td>3–5 key terms representing the study, usually listed below the abstract.</td></tr></tbody></table></div>'+
+ box('Try it: click a part to highlight it in a real abstract','<div class="chips" id="chips">'+
+ ['Background','Gap','Objective','Method','Findings','Implications','Keywords'].map(function(c){return '<button type="button" data-c="'+c+'" aria-pressed="false">'+c+'</button>';}).join('')+'</div>'+
+ '<div class="abs" id="abs"><span data-p="Background">Volition helps students who are in the reading process to achieve their objectives. It converts their motivation into actual actions they need to undergo to reach the predetermined goals. Such actions may include the use of strategies, whether to manage their cognition, emotions, or distractions, that may elevate their reading comprehension and ultimately the desired achievements in conducting such activity. Metacognitive reading strategies can be beneficial to assist students in regulating those aspects. Therefore, students’ volition may predict the use of metacognitive reading strategies, as volition drives students to use strategies in general.</span> <span data-p="Gap">However, previous studies rarely investigate the correlation between students’ volition and the use of metacognitive reading strategies.</span> <span data-p="Objective">Hence, this study aimed to explore vocational high school students’ volition and the correlation between their volition and their metacognitive reading strategy use.</span> <span data-p="Method">A close-ended survey questionnaire was administered to 204 vocational high school students to collect quantitative data.</span> <span data-p="Findings">The results showed that students had high volition for their reading and they applied metacognitive reading strategies. The correlational analysis showed a significantly moderate correlation between volition and metacognitive reading strategy use.</span> <span data-p="Implications">The results of this research can be used to improve students’ volition and reading strategy use in achieving their reading goals.</span>'+
+ '<span class="kw" data-p="Keywords"><b>Keywords:</b> volition, metacognitive reading strategy, vocational high school</span></div>'+
+ '<p class="source">Andriani, E. (2023). PASAA, 67, 247–270. Tip: write the abstract last, after the rest of the paper is done.</p>');},
+ init:function(el){el.querySelectorAll('#chips button').forEach(function(b){b.onclick=function(){var on=b.getAttribute('aria-pressed')!=='true';el.querySelectorAll('#chips button').forEach(function(x){x.setAttribute('aria-pressed','false');});el.querySelectorAll('#abs [data-p]').forEach(function(s){s.classList.toggle('on',on&&s.dataset.p===b.dataset.c);});b.setAttribute('aria-pressed',on);};});}});
+S.push({quiz:"abs",rail:"Quiz 1",title:"Abstract"});
+
+S.push({rail:"Introduction",html:function(){return '<div class="eyebrow">Component 2</div><h2>Introduction</h2>'+
+ '<p>The introduction moves like a funnel, from the general topic down to your exact question. It is often combined with the literature review.</p>'+
+ '<div class="flow"><span>Background</span><b>→</b><span>Research problem</span><b>→</b><span>Research gap</span><b>→</b><span>Significance</span><b>→</b><span>Research objective</span><b>→</b><span>Research question(s)</span></div>'+
+ '<div class="tblwrap"><table class="tbl"><thead><tr><th>Part</th><th>What it does</th><th>Example (a study on learning vocabulary from TikTok)</th></tr></thead><tbody>'+
+ '<tr><td><b>Background</b></td><td>Introduces the general topic and gives relevant context.</td><td>“Social media has become part of many students’ English learning outside the classroom.”</td></tr>'+
+ '<tr><td><b>Research problem</b></td><td>Identifies the specific issue being addressed.</td><td>“However, many learners say they rarely remember the new words they meet on social media.”</td></tr>'+
+ '<tr><td><b>Research gap</b></td><td>Explains what is missing or insufficient in previous studies.</td><td>“Previous studies mostly examined university students; little is known about Indonesian senior high school students.”</td></tr>'+
+ '<tr><td><b>Significance</b></td><td>Explains why the research is important and worth conducting.</td><td>“The results can help teachers turn casual scrolling into deliberate vocabulary learning.”</td></tr>'+
+ '<tr><td><b>Research objective</b></td><td>States what the study aims to investigate.</td><td>“This study aims to investigate how Indonesian senior high school students use TikTok to learn English vocabulary.”</td></tr>'+
+ '<tr><td><b>Research question(s)</b></td><td>Presents the question(s) the study seeks to answer.</td><td>RQ1: How do students use TikTok to learn English vocabulary?<br>RQ2: What challenges do they face?</td></tr></tbody></table></div>'+
+ '<p class="source">If the introduction and literature review are combined, the paragraph from the research gap to the research questions moves to the end of the combined section.</p>';}});
+S.push({quiz:"intro",rail:"Quiz 2",title:"Introduction"});
+
+S.push({rail:"Lit review",html:function(){return '<div class="eyebrow">Component 3</div><h2>Literature review</h2>'+
+ '<div class="grid2">'+box('Five parts','<ol><li><b>Key concepts:</b> define your keywords (e.g., multimodality, mode, digital literacy).</li><li><b>Theoretical framework:</b> the theories that guide your RQs (e.g., Kress &amp; van Leeuwen’s visual grammar, Fairclough’s CDA).</li><li><b>Previous studies:</b> relevant research on the topic.</li><li><b>Synthesis:</b> compare and connect those studies.</li><li><b>Gap:</b> what remains unexplored.</li></ol>')+
+ box('Summary vs. synthesis','<p><b>Summary (weak):</b> “Smith (2020) studied posters. Lee (2021) studied videos.”</p><p><b>Synthesis (strong):</b> “Both Smith (2020) and Lee (2021) found that clear hierarchy improves recall, <i>but neither tested interactive media</i>.”</p><p>The italic part leads straight to your gap.</p>')+'</div>'+
+ '<p class="source">If you combine the introduction and literature review, move the gap → objective → research questions paragraph to the end of the combined section.</p>';}});
+S.push({quiz:"lit",rail:"Quiz 3",title:"Literature review"});
+
+S.push({rail:"Method",html:function(){return '<div class="eyebrow">Component 4</div><h2>Method: the recipe others could repeat</h2>'+
+ '<div class="tblwrap"><table class="tbl"><thead><tr><th>Part</th><th>What to write</th></tr></thead><tbody>'+
+ '<tr><td>Research design</td><td>Qualitative, quantitative, mixed methods, or R&amp;D, and the specific type.</td></tr>'+
+ '<tr><td>Context / setting</td><td>Where and when (e.g., EL Department, JIU, November 2026).</td></tr>'+
+ '<tr><td>Participants / sampling</td><td>Who or what (people, posters, videos) and how they were chosen.</td></tr>'+
+ '<tr><td>Data collection</td><td>How data were gathered: observation, interview, questionnaire.</td></tr>'+
+ '<tr><td>Instruments</td><td>The tools: observation sheet, interview guide, questionnaire items.</td></tr>'+
+ '<tr><td>Data analysis</td><td>How data were processed: MDA, thematic analysis, descriptive statistics, correlation.</td></tr>'+
+ '<tr><td>Ethics</td><td>Consent, anonymity, permission to use images.</td></tr></tbody></table></div>'+
+ '<p class="source">Write it in the past tense, clearly enough that another group could repeat your study. The next three pages go deeper into design, sampling, and data.</p>';}});
+
+S.push({rail:"Design",html:function(){return '<div class="eyebrow">Method · Page 1</div><h2>Research design</h2>'+
+ '<div class="tblwrap"><table class="tbl"><thead><tr><th>Approach</th><th>Data</th><th>Types most useful for your project</th></tr></thead><tbody>'+
+ '<tr><td><b>Qualitative</b></td><td>Words, images, video, observations</td><td><b>MDA</b>: how modes make meaning in your media or existing media.<br><b>CDA / MCDA</b>: how media construct identity, power or ideology (e.g., how the department presents itself).<br><b>Case study / needs analysis</b>: interviews with students or lecturers about a real need.</td></tr>'+
+ '<tr><td><b>Quantitative</b></td><td>Numbers</td><td><b>Survey</b>: Likert questionnaire on perceived usefulness, ease of use, engagement.<br><b>Correlational</b>: is design rating related to motivation?<br><b>Pre-test/post-test</b> (one group): did scores improve after using the media?</td></tr>'+
+ '<tr><td><b>Mixed methods</b></td><td>Both</td><td><b>Convergent</b>: MDA + survey at the same time, then compare.<br><b>Explanatory sequential</b>: survey first, then interviews to explain the numbers.<br><b>Exploratory sequential</b>: interviews first, then a survey built from the themes.</td></tr>'+
+ '<tr><td><b>R&amp;D</b></td><td>Both</td><td><b>ADDIE</b>: Analyze the need → Design → Develop the media → Implement with users → Evaluate (expert validation + user questionnaire). Fits groups whose main output is a new media.</td></tr></tbody></table></div>'+
+ box('Typical final-project combination','<p><b>Needs analysis (short interviews or survey) → design and develop the media → MDA of your media + user questionnaire.</b> This is a mixed-methods R&amp;D design. Name it, and cite a methods source (e.g., Creswell &amp; Creswell, 2018; Branch, 2009).</p>');}});
+S.push({quiz:"design",rail:"Quiz 4",title:"Research design"});
+
+S.push({rail:"Sampling",html:function(){return '<div class="eyebrow">Method · Page 2</div><h2>Sampling: who and what you study</h2>'+
+ '<p><b>Population</b> = everyone or everything you are interested in (e.g., all EL students at JIU). <b>Sample</b> = the part you actually study. In MDA, your “sample” is the <b>data</b>: which posters, videos or pages you analyze.</p>'+
+ '<div class="tblwrap"><table class="tbl"><thead><tr><th>Technique</th><th>How it works</th><th>Use it for</th></tr></thead><tbody>'+
+ '<tr><td><b>Purposive</b></td><td>You choose cases that fit set criteria.</td><td>Choosing media to analyze (e.g., 10 posts from the official account, Aug–Oct 2026); expert reviewers; key informants.</td></tr>'+
+ '<tr><td><b>Convenience</b></td><td>Whoever is available and willing.</td><td>Class surveys and quick user tests. State it honestly as a limitation.</td></tr>'+
+ '<tr><td><b>Snowball</b></td><td>Participants recommend others.</td><td>Hard-to-reach groups, e.g., alumni for a career-guide project.</td></tr>'+
+ '<tr><td><b>Total (census)</b></td><td>Everyone in a small population.</td><td>All 53 students in one course, or all lecturers in the department.</td></tr>'+
+ '<tr><td><b>Simple random</b></td><td>Everyone has an equal chance (lottery, random numbers).</td><td>Large surveys where you want to generalize.</td></tr>'+
+ '<tr><td><b>Stratified random</b></td><td>Random within groups (e.g., each batch year).</td><td>Making sure every year level is represented.</td></tr></tbody></table></div>'+
+ '<div class="grid2">'+box('How many?','<p>Qualitative: depth over size; 5–15 interviews or 5–20 media items is common, until no new themes appear. Quantitative: the more the better; aim for at least 30 respondents for basic statistics such as correlation.</p>')+
+ box('Write it like this','<p>“Participants were 45 first-year EL students selected through convenience sampling. The media data were 12 Instagram posts selected purposively based on three criteria: …”</p>')+'</div>';}});
+
+S.push({rail:"Collection",html:function(){return '<div class="eyebrow">Method · Page 3</div><h2>Data collection &amp; instruments</h2>'+
+ '<div class="grid2">'+box('Common instruments','<ul><li><b>Observation sheet</b> (most common): a table for recording what you see, one row per frame, slide, section or event.</li><li><b>Interview guide</b> (semi-structured): 5–8 open questions with follow-ups; record and transcribe the answers.</li><li><b>Questionnaire</b>: 1–5 Likert items adapted from validated scales; pilot it first and check reliability (Cronbach’s α ≥ .70 is usually acceptable).</li><li><b>Expert validation sheet</b> (for R&amp;D): content, design and language experts rate the product.</li></ul>')+
+ '<div class="box"><h4>Example observation sheet (analyzing a video)</h4><div class="tblwrap"><table class="tbl"><thead><tr><th>Frame</th><th>Visual</th><th>Written</th><th>Audio</th><th>Meaning</th></tr></thead><tbody><tr><td>0:00–0:05</td><td>Campus aerial shot</td><td>“Welcome to EL”</td><td>Upbeat music</td><td>Inviting, prestige</td></tr><tr><td>0:06–0:12</td><td>Students laughing in class</td><td>“Learn together”</td><td>Narration</td><td>Friendly community</td></tr></tbody></table></div>'+
+ '<h4 style="margin-top:6px">Example Likert item</h4><p>“The website helped me find information quickly.”<br>1 Strongly disagree · 2 Disagree · 3 Neutral · 4 Agree · 5 Strongly agree</p></div></div>'+
+ '<p class="source">Ethics: ask for informed consent, keep participants anonymous (P1, P2…), and get permission before using people’s images.</p>';}});
+
+function tx(n,who,t){return '<div class="txl"><span class="ln">'+n+'</span><span><b>'+who+':</b> '+t+'</span></div>';}
+function qstep(n,title,desc,ill){return '<div class="qstep"><div class="qtext"><div class="qnum">'+n+'</div><h3>'+title+'</h3>'+desc+'</div><div class="ill" aria-label="Illustration: '+title+'">'+ill+'</div></div>';}
+S.push({rail:"Qual analysis",html:function(){return '<div class="eyebrow">Method · Page 4</div><h2>Qualitative data analysis: from transcript to themes</h2>'+
+ '<p>A general flow for interview, open-ended or observation data, based on thematic analysis (Braun &amp; Clarke, 2006) and coding (Saldaña, 2021). The running example is an interview about learning vocabulary from TikTok.</p>'+
+ '<div class="flow"><span>1 Prepare &amp; transcribe</span><b>→</b><span>2 Familiarize</span><b>→</b><span>3 Code</span><b>→</b><span>4 Categorize</span><b>→</b><span>5 Develop &amp; review themes</span><b>→</b><span>6 Define &amp; report</span></div>'+
+ '<div class="qflow">'+
+ qstep(1,'Prepare &amp; transcribe','<p>Turn recordings into text. Transcribe word for word, give each participant a code (P1, P2…) to keep them anonymous, and number the lines so you can point to them later.</p>',
+  '<div class="audio">🎙 P1_interview.m4a · 12:40</div><div class="arrowdown">↓</div><div class="tx">'+tx(1,'I','How do you learn new words on TikTok?')+tx(2,'P1','Usually from the captions. If I don’t know a word, I pause and screenshot it.')+tx(3,'P1','Sometimes I copy what the creator says, even the accent.')+'</div>')+
+ qstep(2,'Familiarize','<p>Read the whole data set several times before coding. Write short <b>memos</b>: first impressions, questions, and possible patterns.</p>',
+  '<div class="tx">'+tx(2,'P1','Usually from the captions. If I don’t know a word, I pause and screenshot it.')+'</div><div class="memo">Memo: pausing = deliberate learning? Screenshots = saving words for later. Check if others do this.</div>')+
+ qstep(3,'Code','<p>Label each meaningful chunk of data with a short <b>code</b> that describes it. Stay close to what participants actually said. One line can have more than one code.</p>',
+  '<div class="tx"><div class="txl"><span class="ln">2</span><span><b>P1:</b> Usually <mark class="h1">from the captions</mark>. If I don’t know a word, <mark class="h2">I pause and screenshot it</mark>.</span></div><div class="txl"><span class="ln">3</span><span><b>P1:</b> Sometimes <mark class="h3">I copy what the creator says</mark>, even the accent.</span></div></div><div class="codes"><span class="code h1">reading captions</span><span class="code h2">saving words</span><span class="code h3">imitating speech</span></div>')+
+ qstep(4,'Categorize','<p>Collect codes from <b>all</b> participants and group similar ones into <b>categories</b>. Merge duplicates and rename codes that mean the same thing.</p>',
+  '<div class="cats"><div class="cat"><h5>Capturing words</h5><span class="code h1">reading captions</span><span class="code h2">saving words</span><span class="code h2">notes app list</span></div><div class="cat"><h5>Practising speaking</h5><span class="code h3">imitating speech</span><span class="code h3">repeating phrases</span><span class="code h3">making duets</span></div></div>')+
+ qstep(5,'Develop &amp; review themes','<p>Ask what the categories say about your research question. A <b>theme</b> is a broader pattern of meaning. Check each theme against the whole data set: is it supported, or should it be split, merged or dropped?</p>',
+  '<div class="cats"><div class="cat"><h5>Capturing words</h5></div><div class="cat"><h5>Practising speaking</h5></div></div><div class="arrowdown">↓</div><div class="theme">Theme: Turning scrolling into study</div><div class="checkrow"><span class="pill ok">P1 ✓</span><span class="pill ok">P2 ✓</span><span class="pill no">P3 ✗</span><span class="pill ok">P4 ✓</span><span class="pill ok">P5 ✓</span></div>')+
+ qstep(6,'Define, name &amp; report','<p>Write a clear name and a one-sentence definition for each theme. In the findings, report each theme with <b>evidence</b>: short quotations with participant codes.</p>',
+  '<div class="report"><b>Theme 1: Turning scrolling into study.</b> Four of five participants described deliberately capturing new words while scrolling. As P1 explained, “If I don’t know a word, I pause and screenshot it.”</div>')+
+ '</div><p class="source">The steps are cyclical: you will often go back to the data to recode or rename. Tools: a table in Word, Excel or Google Sheets is enough; NVivo, ATLAS.ti or the free Taguette also work.</p>';}});
+
+S.push({rail:"Quant analysis",html:function(){return '<div class="eyebrow">Method · Page 5</div><h2>Quantitative data analysis</h2>'+
+ '<div class="grid2">'+box('Common analyses','<ul><li><b>Descriptive statistics:</b> frequency, %, mean (M), standard deviation (SD). Band 5-point means as low (1.00–2.33), moderate (2.34–3.67) or high (3.68–5.00).</li><li><b>Reliability:</b> Cronbach’s α.</li><li><b>Pearson correlation (r):</b> the relationship between two scale scores. Use <b>Spearman</b> for ranked or non-normal data.</li><li><b>Paired t-test:</b> pre-test vs. post-test with the same group.</li><li>A result is significant if <b>p &lt; .05</b>; report very small values as p &lt; .001.</li></ul>')+
+ box('Example','<p>A questionnaire on 5 Likert items, answered by 120 students:</p><div class="tblwrap"><table class="tbl" style="min-width:0"><thead><tr><th>Item</th><th>M</th><th>SD</th><th>Level</th></tr></thead><tbody><tr><td>I learn new words from captions.</td><td>4.12</td><td>0.74</td><td>High</td></tr><tr><td>I review the words I saved.</td><td>2.95</td><td>1.02</td><td>Moderate</td></tr></tbody></table></div><p class="source">Free tools: Google Sheets, JASP. Also: SPSS.</p>')+'</div>'+
+ '<div class="box"><h4>Try it: interpret a Pearson r (Schober et al., 2018)</h4><div class="slider"><label for="rr">Drag to set r</label><input type="range" id="rr" min="-100" max="100" value="64"><div><span class="rval" id="rv">r = .64</span> <span class="pill ok" id="rb"></span></div><p class="source" id="rn"></p></div></div>';},
+ init:function(el){var s=el.querySelector('#rr');function u(){var r=s.value/100,a=Math.abs(r),band=a<.1?'negligible':a<.4?'weak':a<.7?'moderate':a<.9?'strong':'very strong';
+  el.querySelector('#rv').textContent='r = '+(r<0?'−':'')+a.toFixed(2).replace(/^0/,'');el.querySelector('#rb').textContent=band+(a<.1?'':(r<0?' negative':' positive'));
+  el.querySelector('#rn').textContent=r<0?'Negative: as one score goes up, the other tends to go down.':'Positive: as one score goes up, the other tends to go up. Correlation never proves causation.';}
+  s.oninput=u;u();}});
+S.push({quiz:"samp",rail:"Quiz 5",title:"Sampling, data collection & analysis"});
+
+S.push({rail:"Findings",html:function(){return '<div class="eyebrow">Component 5</div><h2>Findings</h2>'+
+ '<p>The findings report what the data show. The example below continues the TikTok vocabulary study.</p>'+
+ '<div class="tblwrap"><table class="tbl"><thead><tr><th>Part</th><th>What to do</th><th>Example</th></tr></thead><tbody>'+
+ '<tr><td><b>Presentation of results</b></td><td>Present the findings based on the research questions or objectives.</td><td>Sub-headings: “4.1 How students use TikTok to learn vocabulary (RQ1)”, “4.2 Challenges students face (RQ2)”.</td></tr>'+
+ '<tr><td><b>Themes / categories</b></td><td>Organize findings into themes, patterns or categories (especially for qualitative research).</td><td>“Three themes emerged: turning scrolling into study, learning from creators, and forgetting without review.”</td></tr>'+
+ '<tr><td><b>Supporting evidence</b></td><td>Include relevant data: quotations, observations, statistics or examples.</td><td>“If I don’t know a word, I pause and screenshot it” (P1).<br>Captions item: M = 4.12, SD = 0.74.</td></tr>'+
+ '<tr><td><b>Objective reporting</b></td><td>Describe what the data show without excessive interpretation.</td><td>✓ “Most students (68%) watched English videos every day.”<br>✗ “Students obviously love TikTok because it is fun.”</td></tr>'+
+ '<tr><td><b>Tables / figures</b></td><td>Use visual representations to summarize important results, if applicable.</td><td>“Table 1. Mean scores of TikTok vocabulary learning (N = 120)”: number and title each table, and refer to it in the text.</td></tr></tbody></table></div>'+
+ '<p class="source">Explaining <i>why</i> a result happened belongs in the discussion, not here.</p>';}});
+S.push({quiz:"find",rail:"Quiz 6",title:"Findings"});
+
+S.push({rail:"Discussion",html:function(){return '<div class="eyebrow">Component 6</div><h2>Discussion: what the findings mean</h2>'+
+ '<div class="tblwrap"><table class="tbl"><thead><tr><th>Findings say…</th><th>Discussion says…</th></tr></thead><tbody>'+
+ '<tr><td>Students rated usefulness high (M = 4.21).</td><td>This may be because the media used a familiar Instagram format, consistent with Lee (2021).</td></tr>'+
+ '<tr><td>Students struggled to avoid distractions.</td><td>Unlike Mbato (2013), this may reflect a lack of strategies or an unsupportive environment; future studies should explore why.</td></tr></tbody></table></div>'+
+ box('Five moves','<ol><li><b>Interpret</b> each key finding: what does it mean?</li><li><b>Connect</b> it to the research question.</li><li><b>Compare</b> it with previous studies: consistent or different?</li><li><b>Explain</b> possible reasons.</li><li><b>Address</b> unexpected findings honestly.</li></ol><p class="source">Remember: a correlation shows a relationship, not cause and effect.</p>');}});
+S.push({quiz:"disc",rail:"Quiz 7",title:"Discussion"});
+
+S.push({rail:"Conclusion",html:function(){return '<div class="eyebrow">Component 7</div><h2>Conclusion</h2>'+
+ '<p>Usually <b>2 paragraphs</b>: one summarizes the findings, the other covers significance through to recommendations.</p>'+
+ '<div class="grid2">'+box('Paragraph 1','<ul><li><b>Answer to research questions:</b> explain how each research question has been addressed.<br><span class="anno">“This study found that students used TikTok mainly to capture and imitate new words (RQ1), but rarely reviewed them later (RQ2).”</span></li></ul>')+
+ box('Paragraph 2','<ul><li><b>Research contributions:</b> the main contributions of the study, much like the significance.</li><li><b>Implications:</b> practical or theoretical implications.<br><span class="anno">“Teachers could add short review tasks for words students save from social media.”</span></li><li><b>Limitations:</b> acknowledge the study’s limits.<br><span class="anno">“Data came from one school, so the results may not generalize.”</span></li><li><b>Recommendations:</b> directions for future research or practical improvements.<br><span class="anno">“Future studies could compare TikTok with other platforms.”</span></li></ul>')+'</div>'+
+ '<p class="source">Don’t add new findings or new literature here.</p>';}});
+S.push({quiz:"concl",rail:"Quiz 8",title:"Conclusion"});
+
+function ref(type,html,note){return '<div><div class="reftype">'+type+'</div><p class="ref">'+html+'</p>'+(note?'<p class="anno">'+note+'</p>':'')+'</div>';}
+S.push({rail:"References",html:function(){return '<div class="eyebrow">Component 8</div><h2>References: APA 7th edition</h2>'+
+ box('Four checks for your reference list','<ul><li><b>Consistency:</b> every in-text citation appears in the reference list, and vice versa.</li><li><b>Credible sources:</b> prioritize relevant academic sources such as journal articles, books and conference papers.</li><li><b>Accuracy:</b> check author names, years, titles, journal names, volume, issue, pages and DOI/URLs.</li><li><b>Alphabetical order:</b> arrange references by the first author’s surname.</li></ul>')+
+ '<div class="grid2">'+box('The pattern: Author. (Date). Title. Source.','<ul><li><b>Author:</b> Surname, Initials. (Andriani, E.). Up to 20 authors; use “&amp;” before the last.</li><li><b>Year</b> in parentheses, then a period: (2023).</li><li><b>Article or chapter title:</b> sentence case, not italic. Capitalize only the first word, the first word after a colon, and proper nouns.</li><li><b>Journal name:</b> <i>Italic and Title Case</i>, with the <i>volume</i> also italic; (issue) not italic; then pages.</li><li><b>Book title:</b> <i>italic, sentence case</i>; edition in parentheses; then publisher.</li><li><b>DOI</b> as a link: https://doi.org/…</li><li>Hanging indent; list in <b>alphabetical order</b>.</li></ul>')+
+ box('In-text citations','<ul><li>One author: (Andriani, 2023) or Andriani (2023)</li><li>Two authors: (Braun &amp; Clarke, 2006); in a sentence: Braun and Clarke (2006)</li><li>Three or more: (Schober et al., 2018)</li><li>Direct quote: add the page, (Andriani, 2023, p. 255)</li></ul><h4>Common mistakes</h4><ul><li>Doubled DOI: https://doi.org/https://doi.org/…</li><li>Hyphen instead of en dash in pages (use 77–101)</li><li>Every Word Capitalized in article titles</li><li>Sources in the text missing from the list</li></ul>')+'</div>'+
+ '<div class="box"><h4>Examples by source type</h4><div class="reflist">'+
+ ref('Journal article with DOI','Braun, V., &amp; Clarke, V. (2006). Using thematic analysis in psychology. <i>Qualitative Research in Psychology, 3</i>(2), 77–101. https://doi.org/10.1191/1478088706qp063oa')+
+ ref('Journal article, three authors','Schober, P., Boer, C., &amp; Schwarte, L. A. (2018). Correlation coefficients: Appropriate use and interpretation. <i>Anesthesia &amp; Analgesia, 126</i>(5), 1763–1768. https://doi.org/10.1213/ANE.0000000000002864','The first word after the colon is capitalized: “Appropriate”.')+
+ ref('Journal article without DOI or issue','Andriani, E. (2023). Vocational high school students’ metacognitive reading strategy and volition in language learning: A correlational study. <i>PASAA, 67</i>, 247–270.')+
+ ref('Book','Creswell, J. W., &amp; Creswell, J. D. (2018). <i>Research design: Qualitative, quantitative, and mixed methods approaches</i> (5th ed.). SAGE.')+
+ ref('Book (the “van” stays lowercase)','Kress, G., &amp; van Leeuwen, T. (2021). <i>Reading images: The grammar of visual design</i> (3rd ed.). Routledge.')+
+ ref('Chapter in an edited book','Pekrun, R., &amp; Stephens, E. J. (2012). Academic emotions. In K. R. Harris, S. Graham, T. Urdan, S. Graham, J. M. Royer, &amp; M. Zeidner (Eds.), <i>APA educational psychology handbook: Vol. 2. Individual differences and cultural and contextual factors</i> (pp. 3–31). American Psychological Association. https://doi.org/10.1037/13274-001','Editors: initials first, then surname, followed by (Eds.).')+
+ ref('Conference paper','Nielsen, J. (1994). Enhancing the explanatory power of usability heuristics. In <i>Proceedings of the SIGCHI Conference on Human Factors in Computing Systems</i> (pp. 152–158). ACM. https://doi.org/10.1145/191666.191729')+
+ ref('Webpage / online standard','World Wide Web Consortium. (2023, October 5). <i>Web content accessibility guidelines (WCAG) 2.2</i>. https://www.w3.org/TR/WCAG22/')+
+ ref('YouTube video','USU Libraries. (2019, June 25). <i>Research synthesis</i> [Video]. YouTube. https://www.youtube.com/watch?v=ObK6J7vGnw8','The channel name is the author.')+
+ ref('Generative AI tool','OpenAI. (2025). <i>ChatGPT</i> [Large language model]. https://chatgpt.com/','Describe how you used the tool in your Method section and cite it there, e.g., (OpenAI, 2025). Prompts don’t go in the reference list.')+
+ '</div></div>'+
+ '<div class="box"><h4>Other sources cited in this lecture</h4><div class="reflist"><p class="ref">Branch, R. M. (2009). <i>Instructional design: The ADDIE approach</i>. Springer.</p><p class="ref">Fairclough, N. (1992). <i>Discourse and social change</i>. Polity Press.</p><p class="ref">Saldaña, J. (2021). <i>The coding manual for qualitative researchers</i> (4th ed.). SAGE.</p></div></div>'+'';}});
+S.push({quiz:"refs",rail:"Quiz 9",title:"References (APA 7)"});
+
+
+var PERM={};function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+var cur=0,checked={},answers={},app=document.getElementById('slide'),rail=document.getElementById('rail');
+function quizHtml(s){var qs=QUIZ[s.quiz];var h='<div class="eyebrow">Check your understanding</div><h2>'+esc(s.title.replace('Check your understanding: ',''))+'</h2><p class="source">Answer all 5, then press Check Answers to unlock Next.</p><div class="quiz">';
+ qs.forEach(function(q,i){var id=s.quiz+i;h+='<div class="q" data-i="'+i+'"><div class="qt">'+(i+1)+'. '+esc(q.q)+'</div>';
+  if(q.o){var perm=PERM[id]||(PERM[id]=shuffle(q.o.map(function(_,k){return k;})));h+='<div class="opts" role="radiogroup" aria-label="Question '+(i+1)+'">';perm.forEach(function(k,pos){h+='<label class="opt"><input type="radio" name="'+id+'" value="'+k+'"> <span>'+String.fromCharCode(65+pos)+'. '+esc(q.o[k])+'</span></label>';});h+='</div>';}
+  else h+='<label class="source" for="'+id+'">Type your answer</label><input class="blank" id="'+id+'" type="text" autocomplete="off">';
+  h+='<div class="fb" id="fb-'+id+'"></div></div>';});
+ return h+'</div><p class="notice" id="notice" role="alert"></p><p class="score" id="score"></p>';}
+function norm(s){return String(s).toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}
+function grade(s){var qs=QUIZ[s.quiz],ok=0,missing=0;
+ qs.forEach(function(q,i){var id=s.quiz+i,v;if(q.o){var r=app.querySelector('input[name="'+id+'"]:checked');v=r?+r.value:null;}else{v=app.querySelector('#'+id).value.trim()||null;}
+  if(v===null)missing++;});
+ if(missing){app.querySelector('#notice').textContent='Please answer all questions first ('+missing+' left).';return;}
+ app.querySelector('#notice').textContent='';
+ qs.forEach(function(q,i){var id=s.quiz+i,fb=app.querySelector('#fb-'+id),right,shown;
+  if(q.o){var v=+app.querySelector('input[name="'+id+'"]:checked').value;right=v===q.a;shown=String.fromCharCode(65+PERM[id].indexOf(q.a))+'. '+q.o[q.a];}
+  else{var t=norm(app.querySelector('#'+id).value);right=q.blank.some(function(b){return norm(b)===t;});shown=q.blank[0];}
+  if(right)ok++;fb.className='fb '+(right?'ok':'no');fb.textContent=right?'✓ Correct':'✗ Not quite. Correct answer: '+shown;});
+ app.querySelector('#score').textContent='Score: '+ok+' / '+qs.length;
+ app.querySelectorAll('.quiz input').forEach(function(i){if(i.type==='radio'){if(i.checked)i.setAttribute('checked','');}else i.setAttribute('value',i.value);});
+ checked[s.quiz]=true;answers[s.quiz]=app.querySelector('.quiz').innerHTML;render(true);app.querySelectorAll('.quiz input').forEach(function(i){i.disabled=true;});}
+function maxReach(){var m=0;for(var i=0;i<S.length;i++){m=i;if(S[i].quiz&&!checked[S[i].quiz])break;}return m;}
+function drawRail(){var reach=maxReach();rail.innerHTML=S.map(function(s,i){return '<button type="button" data-go="'+i+'"'+(i===cur?' aria-current="step"':'')+(i>reach?' disabled':'')+'>'+esc(s.rail)+'</button>';}).join('')+'<span class="count">'+(cur+1)+' / '+S.length+'</span>';
+ rail.querySelectorAll('[data-go]').forEach(function(b){b.onclick=function(){go(+b.dataset.go);};});}
+function render(keepQuiz){var s=S[cur],h;
+ if(s.quiz){var done=checked[s.quiz];
+  if(keepQuiz&&done){app.querySelector('.nav').outerHTML=navHtml(s);bindNav(s);drawRail();return;}
+  h=quizHtml(s);}else h=s.html();
+ app.innerHTML=h+navHtml(s);
+ if(s.quiz&&checked[s.quiz]){app.querySelector('.quiz').innerHTML=answers[s.quiz];app.querySelectorAll('.quiz input').forEach(function(i){i.disabled=true;});}
+ if(s.init)s.init(app);bindNav(s);drawRail();}
+function navHtml(s){var last=cur===S.length-1,h='<div class="nav"><button type="button" class="btn" id="prev"'+(cur===0?' disabled':'')+'>← Previous</button>';
+ if(s.quiz&&!checked[s.quiz])h+='<button type="button" class="btn primary" id="check">Check Answers</button>';
+ else h+='<button type="button" class="btn primary" id="next"'+(last?' disabled':'')+'>'+(last?'End of lecture':'Next →')+'</button>';
+ return h+'</div>';}
+function bindNav(s){var p=app.querySelector('#prev'),n=app.querySelector('#next'),c=app.querySelector('#check');
+ if(p)p.onclick=function(){go(cur-1);};if(n)n.onclick=function(){go(cur+1);};if(c)c.onclick=function(){grade(s);};}
+function go(i){if(i<0||i>=S.length||i>maxReach())return;cur=i;render();app.focus({preventScroll:true});window.scrollTo({top:0});}
+document.addEventListener('keydown',function(e){if(e.target.closest('input,textarea'))return;if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1);});
+render();
+})();
+</script>
+</body>
+</html>
